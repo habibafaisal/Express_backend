@@ -16,12 +16,17 @@ const getContact = asyncHandler(async (req, res) => {
 
 const postContact = asyncHandler(async (req, res) => {
   console.log("req body is", req.body);
-  const { name, phone, email } = req.body;
+  const { name, email, phone } = req.body;
   if (!name || !phone || !email) {
     res.status(400);
     throw new Error("all fields are required");
   }
-  res.status(201).json({ mess: "create contacts" });
+  const contact = await Contact.create({
+    name,
+    email,
+    phone,
+  });
+  res.status(201).json(contact);
 });
 
 // @desc Get  contacts by id
@@ -29,15 +34,33 @@ const postContact = asyncHandler(async (req, res) => {
 // @access public
 
 const getContactById = asyncHandler(async (req, res) => {
-  res.status(200).json({ mess: `get contact by id ${req.params.id}` });
+  const contact = await Contact.findById(req.params.id);
+  if (!contact) {
+    res.status(404);
+    throw new Error("Couldn't find contact");
+  }
+  res.status(200).json(contact);
 });
 
 // @desc update  contacts by id
 // @routes PUT /api/contacts
 // @access public
 
-const updateContactById = asyncHandler((req, res) => {
-  res.status(200).json({ mess: `update contact by id ${req.params.id}` });
+const updateContactById = asyncHandler(async (req, res) => {
+  const contact = await Contact.findById(req.params.id);
+  if (!contact) {
+    res.status(404);
+    throw new Error("Couldn't find contact");
+  }
+  console.log("Contact", contact);
+
+  const updatedContact = Contact.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  });
+  // res.status(200).json({
+  //   mess: `updated contact by id ${req.params.id}${contact.name}${updatedContact} `,
+  // });
+  res.status(200).json(updatedContact);
 });
 
 // @desc delete  contacts by id
