@@ -42,14 +42,12 @@ const login = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
 
   if (user && (await bcrypt.compare(password, user.password))) {
-    console.log("before token");
-
     const accessToken = jsonwebtoken.sign(
       {
         user: { username: user.username, email: user.email, id: user.id },
       },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "1m" }
+      { expiresIn: "15m" }
     );
     return res.status(200).json({ accessToken });
   } else {
